@@ -12,4 +12,10 @@ class Item
   def current_high_bid
       @bids.values.max
   end
+
+  def close_bidding
+    @bids.select! do |attendee, amount|
+      add_bid(attendee, amount)
+    end
+  end
 end

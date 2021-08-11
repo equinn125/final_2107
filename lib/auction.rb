@@ -25,4 +25,29 @@ class Auction
       item.current_high_bid.to_i
     end
   end
+
+  def bidders
+    bidders = []
+    @items.each do |item|
+      item.bids.each do |attendee, amount|
+        bidders << attendee.name
+      end
+    end
+    bidders.uniq
+  end
+
+  def bidder_info
+    info = {}
+    @items.each do |item|
+      item.bids.each do |attendee, amount|
+        if info[attendee].nil?
+          info[attendee] = {:budget => attendee.budget, :items => [item]}
+        else
+          info[attendee][:budget] = attendee.budget
+          info[attendee][:items] << item
+        end
+      end
+    end
+    info
+  end
 end

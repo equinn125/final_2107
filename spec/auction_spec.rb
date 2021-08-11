@@ -35,68 +35,6 @@ RSpec.describe Auction do
     end
   end
 
-  describe '#add_bid(attendee,amount)' do
-    it 'does not have any bids at first' do
-      item1 = Item.new('Chalkware Piggy Bank')
-      item2 = Item.new('Bamboo Picture Frame')
-      item3 = Item.new('Homemade Chocolate Chip Cookies')
-      item4 = Item.new('2 Days Dogsitting')
-      item5 = Item.new('Forever Stamps')
-      attendee1 = Attendee.new(name: 'Megan', budget: '$50')
-      attendee2 = Attendee.new(name: 'Bob', budget: '$75')
-      attendee3 = Attendee.new(name: 'Mike', budget: '$100')
-      auction = Auction.new
-      auction.add_item(item1)
-      auction.add_item(item2)
-      auction.add_item(item3)
-      auction.add_item(item4)
-      auction.add_item(item5)
-      expect(item1.bids).to eq({})
-    end
-
-    it 'adds a bid to the hash with the attendee as the key and the amount as the value' do
-      item1 = Item.new('Chalkware Piggy Bank')
-      item2 = Item.new('Bamboo Picture Frame')
-      item3 = Item.new('Homemade Chocolate Chip Cookies')
-      item4 = Item.new('2 Days Dogsitting')
-      item5 = Item.new('Forever Stamps')
-      attendee1 = Attendee.new(name: 'Megan', budget: '$50')
-      attendee2 = Attendee.new(name: 'Bob', budget: '$75')
-      attendee3 = Attendee.new(name: 'Mike', budget: '$100')
-      auction = Auction.new
-      auction.add_item(item1)
-      auction.add_item(item2)
-      auction.add_item(item3)
-      auction.add_item(item4)
-      auction.add_item(item5)
-      item1.add_bid(attendee2, 20)
-      item1.add_bid(attendee1, 22)
-      expected = {attendee2 => 20, attendee1 => 22}
-      expect(item1.bids).to eq(expected)
-    end
-  end
-
-  describe '#current_high_bid' do
-    it 'returns the highest bid' do
-      item1 = Item.new('Chalkware Piggy Bank')
-      item2 = Item.new('Bamboo Picture Frame')
-      item3 = Item.new('Homemade Chocolate Chip Cookies')
-      item4 = Item.new('2 Days Dogsitting')
-      item5 = Item.new('Forever Stamps')
-      attendee1 = Attendee.new(name: 'Megan', budget: '$50')
-      attendee2 = Attendee.new(name: 'Bob', budget: '$75')
-      attendee3 = Attendee.new(name: 'Mike', budget: '$100')
-      auction = Auction.new
-      auction.add_item(item1)
-      auction.add_item(item2)
-      auction.add_item(item3)
-      auction.add_item(item4)
-      auction.add_item(item5)
-      item1.add_bid(attendee2, 20)
-      item1.add_bid(attendee1, 22)
-      expect(item1.current_high_bid).to eq(22)
-    end
-  end
 
   describe '#unpopular_items' do
     it 'returns an array of items that have zero bids' do
@@ -144,6 +82,88 @@ RSpec.describe Auction do
       item4.add_bid(attendee3, 50)
       item3.add_bid(attendee2, 15)
       expect(auction.potential_revenue).to eq(87)
+    end
+  end
+
+  describe '#auction_bidders' do
+    it 'returns an array of all the bidders names' do
+      item1 = Item.new('Chalkware Piggy Bank')
+      item2 = Item.new('Bamboo Picture Frame')
+      item3 = Item.new('Homemade Chocolate Chip Cookies')
+      item4 = Item.new('2 Days Dogsitting')
+      item5 = Item.new('Forever Stamps')
+      attendee1 = Attendee.new(name: 'Megan', budget: '$50')
+      attendee2 = Attendee.new(name: 'Bob', budget: '$75')
+      attendee3 = Attendee.new(name: 'Mike', budget: '$100')
+      auction = Auction.new
+      auction.add_item(item1)
+      auction.add_item(item2)
+      auction.add_item(item3)
+      auction.add_item(item4)
+      auction.add_item(item5)
+      item1.add_bid(attendee1, 22)
+      item1.add_bid(attendee2, 20)
+      item4.add_bid(attendee3, 50)
+      item3.add_bid(attendee2, 15)
+      expect(auction.bidders).to eq(["Megan", "Bob", "Mike"])
+    end
+  end
+
+  describe '#bidder_info' do
+    it 'returns a hash with the attendee as the key, value is a hash with the budget and array of items they bid on' do
+      item1 = Item.new('Chalkware Piggy Bank')
+      item2 = Item.new('Bamboo Picture Frame')
+      item3 = Item.new('Homemade Chocolate Chip Cookies')
+      item4 = Item.new('2 Days Dogsitting')
+      item5 = Item.new('Forever Stamps')
+      attendee1 = Attendee.new(name: 'Megan', budget: '$50')
+      attendee2 = Attendee.new(name: 'Bob', budget: '$75')
+      attendee3 = Attendee.new(name: 'Mike', budget: '$100')
+      auction = Auction.new
+      auction.add_item(item1)
+      auction.add_item(item2)
+      auction.add_item(item3)
+      auction.add_item(item4)
+      auction.add_item(item5)
+      item1.add_bid(attendee1, 22)
+      item1.add_bid(attendee2, 20)
+      item4.add_bid(attendee3, 50)
+      item3.add_bid(attendee2, 15)
+      expected =
+      {
+        attendee1 => {:budget => 50, :items => [item1]},
+        attendee2 => {:budget => 75, :items => [item1, item3]},
+        attendee3 => {:budget => 100, :items => [item4]}
+      }
+      expect(auction.bidder_info).to eq(expected)
+    end
+  end
+
+  describe '#close_bidding' do
+    it 'stops bidding on an object' do
+      item1 = Item.new('Chalkware Piggy Bank')
+      item2 = Item.new('Bamboo Picture Frame')
+      item3 = Item.new('Homemade Chocolate Chip Cookies')
+      item4 = Item.new('2 Days Dogsitting')
+      item5 = Item.new('Forever Stamps')
+      attendee1 = Attendee.new(name: 'Megan', budget: '$50')
+      attendee2 = Attendee.new(name: 'Bob', budget: '$75')
+      attendee3 = Attendee.new(name: 'Mike', budget: '$100')
+      auction = Auction.new
+      auction.add_item(item1)
+      auction.add_item(item2)
+      auction.add_item(item3)
+      auction.add_item(item4)
+      auction.add_item(item5)
+      item1.add_bid(attendee1, 22)
+      item1.add_bid(attendee2, 20)
+      item4.add_bid(attendee3, 50)
+      item3.add_bid(attendee2, 15)
+      expected = {attendee1 => 22, attendee2 => 20}
+      expect(item1.bids).to eq(expected)
+      item1.close_bidding
+      item1.add_bid(attendee3, 70)
+      expect(item1.bids).to eq(expected)
     end
   end
 end
