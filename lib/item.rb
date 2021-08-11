@@ -14,8 +14,8 @@ class Item
   end
 
   def close_bidding
-    @bids.select! do |attendee, amount|
-      add_bid(attendee, amount)
+    @bids.select! do |atendee, amount|
+      !add_bid(atendee,amount)
     end
   end
 end
